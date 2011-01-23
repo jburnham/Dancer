@@ -120,6 +120,10 @@ sub register_route {
 # class, any, ARRAY(0x9864818), '/path', CODE(0x990ac88)
 # or
 # class, any, '/path', CODE(0x990ac88)
+# or
+# class, any, Regexp, CODE(0x990ac88)
+# or
+# class, any, ARRAY(0x9864818), Regexp, CODE(0x990ac88)
 sub any_add {
     my ($self, $pattern, @rest) = @_;
 
@@ -128,6 +132,11 @@ sub any_add {
     if (ref($pattern) eq 'ARRAY') {
         @methods = @$pattern;
         $pattern = shift @rest;
+    }
+
+    if (ref($pattern) eq 'Regexp') {
+        $self->universal_add($_, $pattern, @rest) for @methods;
+        return scalar(@methods);
     }
 
     croak "Syntax error, methods should be provided as an ARRAY ref"
